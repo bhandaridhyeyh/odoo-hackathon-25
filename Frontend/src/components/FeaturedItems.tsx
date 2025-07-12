@@ -1,151 +1,139 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Star, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Heart, Loader2 } from 'lucide-react';
+import API from '@/utils/axios';
 
-const featuredItems = [
-  {
-    id: 1,
-    title: 'Vintage Denim Jacket',
-    brand: 'Levi\'s',
-    size: 'M',
-    condition: 'Excellent',
-    points: 45,
-    image: 'https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=400&h=500&fit=crop&auto=format',
-    user: {
-      name: 'Sarah M.',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&auto=format',
-      rating: 4.9
-    },
-    tags: ['Vintage', 'Sustainable']
-  },
-  {
-    id: 2,
-    title: 'Floral Summer Dress',
-    brand: 'Zara',
-    size: 'S',
-    condition: 'Like New',
-    points: 38,
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=500&fit=crop&auto=format',
-    user: {
-      name: 'Emma K.',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&auto=format',
-      rating: 4.8
-    },
-    tags: ['Summer', 'Floral']
-  },
-  {
-    id: 3,
-    title: 'Designer Handbag',
-    brand: 'Michael Kors',
-    size: 'One Size',
-    condition: 'Good',
-    points: 120,
-    image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=500&fit=crop&auto=format',
-    user: {
-      name: 'Lisa R.',
-      avatar: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=40&h=40&fit=crop&auto=format',
-      rating: 5.0
-    },
-    tags: ['Designer', 'Premium']
-  },
-  {
-    id: 4,
-    title: 'Casual Sneakers',
-    brand: 'Adidas',
-    size: '8.5',
-    condition: 'Very Good',
-    points: 52,
-    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=500&fit=crop&auto=format',
-    user: {
-      name: 'Alex T.',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&auto=format',
-      rating: 4.7
-    },
-    tags: ['Casual', 'Sport']
-  }
-];
+interface Item {
+  _id: string;
+  title: string;
+  description: string;
+  condition: string;
+  size: string;
+  category: string;
+  images: string[];
+  userId: {
+    _id: string;
+    name: string;
+  };
+  createdAt: string;
+  status?: string;
+}
 
 const FeaturedItems = () => {
+  const navigate = useNavigate();
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLatestItems();
+  }, []);
+
+  const fetchLatestItems = async () => {
+    try {
+      const response = await API.get('/items');
+      // Filter approved items and get the latest 6
+      const approvedItems = response.data
+        .filter((item: Item) => !item.status || item.status === 'available')
+        .sort((a: Item, b: Item) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 6);
+      
+      setItems(approvedItems);
+      console.log('Latest items fetched:', approvedItems);
+    } catch (error) {
+      console.error('Failed to fetch latest items:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleItemClick = (itemId: string) => {
+    navigate(`/product/${itemId}`);
+  };
+
   return (
-    <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
+    <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-12">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Featured Items
-            </h2>
-            <p className="text-gray-600">
-              Handpicked treasures from our community
-            </p>
-          </div>
-          <Button variant="outline" className="hidden md:block">
-            View All Items
-          </Button>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest Items</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Discover the newest pre-loved fashion items from our community
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredItems.map((item) => (
-            <Card key={item.id} className="group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 bg-white overflow-hidden">
-              <div className="relative">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm hover:bg-white/90 p-2"
-                >
-                  <Heart className="w-4 h-4" />
-                </Button>
-                <div className="absolute top-3 left-3 flex flex-wrap gap-1">
-                  {item.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs bg-white/80 backdrop-blur-sm">
-                      {tag}
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin" />
+          </div>
+        ) : items.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {items.map((item) => (
+              <Card 
+                key={item._id} 
+                className="group cursor-pointer hover:shadow-xl transition-all duration-300"
+                onClick={() => handleItemClick(item._id)}
+              >
+                <div className="relative aspect-square overflow-hidden rounded-t-lg">
+                  <img
+                    src={item.images[0] || '/placeholder.svg'}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="rounded-full w-10 h-10 p-0 bg-white/90 hover:bg-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      <Heart className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="absolute top-4 left-4">
+                    <Badge className="bg-emerald-500 text-white">
+                      {item.condition}
                     </Badge>
-                  ))}
+                  </div>
                 </div>
-              </div>
-              
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-xl mb-3 group-hover:text-emerald-600 transition-colors">
                     {item.title}
                   </h3>
-                  <div className="flex items-center bg-emerald-100 px-2 py-1 rounded-full">
-                    <span className="text-emerald-700 font-semibold text-sm">{item.points}p</span>
+                  <p className="text-gray-600 mb-4 line-clamp-2">
+                    {item.description}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                      <Badge variant="outline">Size {item.size}</Badge>
+                      <Badge variant="outline">{item.category}</Badge>
+                    </div>
                   </div>
-                </div>
-                
-                <p className="text-sm text-gray-600 mb-3">
-                  {item.brand} • Size {item.size} • {item.condition}
-                </p>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <img
-                      src={item.user.avatar}
-                      alt={item.user.name}
-                      className="w-6 h-6 rounded-full"
-                    />
-                    <span className="text-sm text-gray-600">{item.user.name}</span>
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <p className="text-sm text-gray-500">by {item.userId.name}</p>
                   </div>
-                  <div className="flex items-center">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-sm text-gray-600 ml-1">{item.user.rating}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No items available</p>
+          </div>
+        )}
 
-        <div className="text-center mt-8 md:hidden">
-          <Button variant="outline">View All Items</Button>
+        <div className="text-center mt-12">
+          <Button 
+            onClick={() => navigate('/browse')}
+            className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-3"
+          >
+            Browse All Items
+          </Button>
         </div>
       </div>
     </section>

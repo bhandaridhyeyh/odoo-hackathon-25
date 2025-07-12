@@ -1,20 +1,30 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Eye, EyeOff, Mail, Github } from 'lucide-react';
+import { Eye, EyeOff, Mail, Github, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
+  const { login } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || '/profile';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -23,16 +33,32 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login submitted:', formData);
-    // Handle login logic here
+    setLoading(true);
+
+    try {
+      await login(formData.email, formData.password);
+      toast({
+        title: "Welcome back!",
+        description: "You have been successfully logged in.",
+      });
+      navigate(from, { replace: true });
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto">
           <Card className="shadow-xl border-0">
@@ -51,13 +77,20 @@ const Login = () => {
                 <Button
                   variant="outline"
                   className="w-full h-12 text-gray-700 border-gray-200 hover:bg-gray-50"
+                  onClick={() =>
+                    (window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`)
+                  }
                 >
                   <Mail className="w-5 h-5 mr-3" />
                   Continue with Google
                 </Button>
+
                 <Button
                   variant="outline"
                   className="w-full h-12 text-gray-700 border-gray-200 hover:bg-gray-50"
+                  onClick={() =>
+                    (window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/github`)
+                  }
                 >
                   <Github className="w-5 h-5 mr-3" />
                   Continue with GitHub
@@ -118,19 +151,19 @@ const Login = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="text-sm">
-                    <Link to="/forgot-password" className="text-emerald-600 hover:text-emerald-700">
-                      Forgot password?
-                    </Link>
-                  </div>
-                </div>
-
                 <Button
                   type="submit"
+                  disabled={loading}
                   className="w-full h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold"
                 >
-                  Sign In
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Signing In...
+                    </>
+                  ) : (
+                    'Sign In'
+                  )}
                 </Button>
               </form>
 

@@ -80,16 +80,16 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 ReWear. All rights reserved.
+              © 2025 ReWear. All rights reserved.
             </p>
             <div className="flex items-center space-x-6 mt-4 md:mt-0">
               <div className="flex items-center text-gray-400 text-sm">
                 <MapPin className="w-4 h-4 mr-1" />
-                San Francisco, CA
+                Vadodara, India
               </div>
               <div className="flex items-center text-gray-400 text-sm">
                 <Phone className="w-4 h-4 mr-1" />
-                (555) 123-4567
+                +91 63516 92454
               </div>
             </div>
           </div>

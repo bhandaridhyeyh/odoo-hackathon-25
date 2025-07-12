@@ -7,7 +7,7 @@ const testimonials = [
   {
     id: 1,
     name: 'Maya Chen',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&auto=format',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&auto=format',
     rating: 5,
     text: 'ReWear has completely transformed how I approach fashion. I\'ve swapped over 30 items and discovered amazing pieces I never would have found otherwise!',
     location: 'San Francisco, CA'

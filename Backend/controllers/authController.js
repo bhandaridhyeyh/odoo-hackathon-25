@@ -47,5 +47,5 @@ export const login = async (req, res) => {
 // @desc Google/GitHub OAuth callback
 export const oauthSuccess = (req, res) => {
   const token = generateToken(req.user._id);
-  res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
+  res.redirect(`${process.env.CLIENT_URL}/oauth-redirect?token=${token}`);
 };

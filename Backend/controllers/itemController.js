@@ -1,16 +1,23 @@
 import Item from '../models/Item.js';
 import cloudinary from '../config/cloudinary.js';
+import fs from 'fs';
 
-// @desc Upload new item
 export const createItem = async (req, res) => {
   try {
+    console.log("➡️ Received fields:", req.body);
+    console.log("🖼️ Files received:", req.files);
+
     const { title, description, category, size, condition, tags, isFeatured } = req.body;
 
     const imageUrls = [];
 
     for (const file of req.files) {
+      console.log("🔼 Uploading to Cloudinary:", file.path);
       const result = await cloudinary.uploader.upload(file.path);
       imageUrls.push(result.secure_url);
+
+      // ✅ Delete file after upload
+      fs.unlinkSync(file.path);
     }
 
     const newItem = await Item.create({
@@ -25,8 +32,11 @@ export const createItem = async (req, res) => {
       isFeatured: isFeatured || false,
     });
 
+    console.log("✅ Item created:", newItem);
+
     res.status(201).json(newItem);
   } catch (err) {
+    console.error("❌ Error creating item:", err);
     res.status(500).json({ message: err.message });
   }
 };

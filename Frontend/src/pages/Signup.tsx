@@ -1,26 +1,36 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, Mail, Github, User } from 'lucide-react';
+import { Eye, EyeOff, Mail, Github, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
+    phone: '',
+    location: '',
+    bio: '',
     agreeToTerms: false
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { register } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -34,16 +44,41 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Signup submitted:', formData);
-    // Handle signup logic here
+    setLoading(true);
+
+    try {
+      const userData = {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        location: formData.location,
+        bio: formData.bio,
+      };
+
+      await register(userData);
+      toast({
+        title: "Welcome to ReWear!",
+        description: "Your account has been created successfully.",
+      });
+      navigate('/profile');
+    } catch (error: any) {
+      toast({
+        title: "Registration failed",
+        description: error.message || "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-md mx-auto">
           <Card className="shadow-xl border-0">
@@ -62,13 +97,20 @@ const Signup = () => {
                 <Button
                   variant="outline"
                   className="w-full h-12 text-gray-700 border-gray-200 hover:bg-gray-50"
+                  onClick={() =>
+                    (window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`)
+                  }
                 >
                   <Mail className="w-5 h-5 mr-3" />
                   Sign up with Google
                 </Button>
+
                 <Button
                   variant="outline"
                   className="w-full h-12 text-gray-700 border-gray-200 hover:bg-gray-50"
+                  onClick={() =>
+                    (window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/github`)
+                  }
                 >
                   <Github className="w-5 h-5 mr-3" />
                   Sign up with GitHub
@@ -156,9 +198,32 @@ const Signup = () => {
                       )}
                     </Button>
                   </div>
-                  <p className="text-xs text-gray-500">
-                    Must be at least 8 characters with numbers and letters
-                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="Your phone number"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="h-12"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    name="location"
+                    type="text"
+                    placeholder="City, State"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    className="h-12"
+                  />
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -181,10 +246,17 @@ const Signup = () => {
 
                 <Button
                   type="submit"
-                  disabled={!formData.agreeToTerms}
+                  disabled={!formData.agreeToTerms || loading}
                   className="w-full h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold disabled:opacity-50"
                 >
-                  Create Account
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating Account...
+                    </>
+                  ) : (
+                    'Create Account'
+                  )}
                 </Button>
               </form>
 
