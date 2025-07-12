@@ -14,7 +14,6 @@ const Header = () => {
             <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">RW</span>
             </div>
-            <span className="text-xl font-semibold text-gray-900">ReWear</span>
           </Link>
 
           {/* Navigation */}
@@ -24,9 +23,6 @@ const Header = () => {
             </Link>
             <Link to="/browse" className="text-gray-700 hover:text-emerald-600 transition-colors">
               Browse
-            </Link>
-            <Link to="/how-it-works" className="text-gray-700 hover:text-emerald-600 transition-colors">
-              How It Works
             </Link>
           </nav>
 
