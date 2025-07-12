@@ -39,7 +39,7 @@ const FeaturedItems = () => {
       const approvedItems = response.data
         .filter((item: Item) => !item.status || item.status === 'available')
         .sort((a: Item, b: Item) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 6);
+        .slice(0, 3);
       
       setItems(approvedItems);
       console.log('Latest items fetched:', approvedItems);

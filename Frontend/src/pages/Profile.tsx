@@ -148,7 +148,7 @@ const Profile = () => {
                       </span>
                       <span className="flex items-center">
                         <Calendar className="w-4 h-4 mr-1" />
-                        Member since 2024
+                        Member since 2025
                       </span>
                     </div>
                   </div>

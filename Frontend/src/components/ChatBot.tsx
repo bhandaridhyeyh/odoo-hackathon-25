@@ -17,7 +17,7 @@ const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      text: "Hi! I'm your ReWear assistant. I can help you find the perfect items to swap, explain how our point system works, or answer any questions about sustainable fashion. How can I help you today?",
+      text: "Hi! I'm your ReWear assistant. How can I help you today?",
       isBot: true,
       timestamp: new Date()
     }
@@ -110,7 +110,7 @@ const ChatBot = () => {
             <p className="text-sm text-emerald-100">Online • Ready to help</p>
           </CardHeader>
 
-          <CardContent className="flex-1 flex flex-col p-0">
+          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((message) => (
